@@ -1,7 +1,7 @@
 package set
 
 import (
-	"github.com/raumanzug/gr-generator"
+	"iter"
 )
 
 // Closure closes base under applying op.
@@ -12,26 +12,20 @@ import (
 // then also y_i for each i in {1, ..., m} is contained in base as well.
 func Closure[T comparable](
 	base Set[T],
-	op func(T) generator.Generator[generator.LoopDirective, T]) {
+	op func(T) iter.Seq[T]) {
 
 	bagA := base.Generator()
 	for {
 		bagB := NewSimpleSet[T]()
 		isEmpty := true
-		generator.Foreach(
-			bagA,
-			func(elem T) generator.LoopDirective {
-				isEmpty = false
-				generator.Foreach(
-					op(elem),
-					func(next T) generator.LoopDirective {
-						if !base.Contains(next) {
-							bagB.Add(next)
-						}
-						return generator.LoopDirectiveContinue
-					})
-				return generator.LoopDirectiveContinue
-			})
+		for elem := range bagA {
+			isEmpty = false
+			for next := range op(elem) {
+				if !base.Contains(next) {
+					bagB.Add(next)
+				}
+			}
+		}
 		if isEmpty {
 			break
 		}

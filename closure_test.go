@@ -1,7 +1,8 @@
 package set
 
 import (
-	"github.com/raumanzug/gr-generator"
+	"iter"
+	"slices"
 	"testing"
 )
 
@@ -15,8 +16,8 @@ var (
 	}
 )
 
-func op(elem string) generator.Generator[generator.LoopDirective, string] {
-	return generator.Array2Generator(connections[elem])
+func op(elem string) iter.Seq[string] {
+	return slices.Values(connections[elem])
 }
 
 func Test_EmptyClosure(t *testing.T) {

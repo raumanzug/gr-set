@@ -1,7 +1,7 @@
 package set
 
 import (
-	"github.com/raumanzug/gr-generator"
+	"iter"
 )
 
 // Set is set type.
@@ -11,7 +11,7 @@ type Set[T any] interface {
 	Clone() Set[T]
 
 	// Generator produces a generator which enumerates each element.
-	Generator() generator.Generator[generator.LoopDirective, T]
+	Generator() iter.Seq[T]
 
 	// Add adds an element elem to the set.
 	Add(elem T)

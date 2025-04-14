@@ -1,7 +1,6 @@
 package set
 
 import (
-	"github.com/raumanzug/gr-generator"
 	"testing"
 )
 
@@ -173,15 +172,12 @@ func Test_Break(t *testing.T) {
 	mySet.Add(12)
 	g := mySet.Generator()
 	resultList := []uint{}
-	generator.Foreach(
-		g,
-		func(elem uint) generator.LoopDirective {
-			if elem < 23 {
-				return generator.LoopDirectiveBreak
-			}
-			resultList = append(resultList, elem)
-			return generator.LoopDirectiveContinue
-		})
+	for elem := range g {
+		if elem < 23 {
+			break
+		}
+		resultList = append(resultList, elem)
+	}
 	if len(resultList) > 2 {
 		t.Fail()
 	}
