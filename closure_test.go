@@ -1,9 +1,12 @@
-package set
+package gr
 
 import (
 	"iter"
 	"slices"
 	"testing"
+
+	"github.com/raumanzug/gr-set/op"
+	"github.com/raumanzug/gr-set/simple"
 )
 
 var (
@@ -16,14 +19,14 @@ var (
 	}
 )
 
-func op(elem string) iter.Seq[string] {
+func targets(elem string) iter.Seq[string] {
 	return slices.Values(connections[elem])
 }
 
 func Test_EmptyClosure(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.IsEmpty() {
 		t.Fail()
@@ -31,11 +34,11 @@ func Test_EmptyClosure(t *testing.T) {
 }
 
 func Test_SingleClosureA(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 	base.Add("Hof")
 	cmp := base.Clone()
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.Subeq(cmp) || !cmp.Subeq(base) {
 		t.Fail()
@@ -43,11 +46,11 @@ func Test_SingleClosureA(t *testing.T) {
 }
 
 func Test_SingleClosureB(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 	base.Add("Magdeburg")
 	cmp := base.Clone()
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.Subeq(cmp) || !cmp.Subeq(base) {
 		t.Fail()
@@ -55,10 +58,10 @@ func Test_SingleClosureB(t *testing.T) {
 }
 
 func Test_singleClosureC(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 	base.Add("Leipzig")
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.Contains("Leipzig") ||
 		!base.Contains("Halle") ||
@@ -69,10 +72,10 @@ func Test_singleClosureC(t *testing.T) {
 }
 
 func Test_singleClosureD(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 	base.Add("Dresden")
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.Contains("Dresden") ||
 		!base.Contains("Chemnitz") ||
@@ -86,11 +89,11 @@ func Test_singleClosureD(t *testing.T) {
 }
 
 func Test_doubleClosureA(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 	base.Add("Dresden")
 	base.Add("Hof")
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.Contains("Dresden") ||
 		!base.Contains("Chemnitz") ||
@@ -104,11 +107,11 @@ func Test_doubleClosureA(t *testing.T) {
 }
 
 func Test_doubleClosureB(t *testing.T) {
-	base := NewSimpleSet[string]()
+	base := simple.NewSet[string]()
 	base.Add("Leipzig")
 	base.Add("Hof")
 
-	Closure[string](base, op)
+	op.Closure[string](base, targets)
 
 	if !base.Contains("Leipzig") ||
 		!base.Contains("Halle") ||

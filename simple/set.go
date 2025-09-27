@@ -1,18 +1,20 @@
-package set
+package simple
 
 import (
 	"iter"
 	"maps"
+
+	"github.com/raumanzug/gr-set/set"
 )
 
 type simpleSet[T comparable] map[T]interface{}
 
-// NewSimpleSet generates an empty set.
-func NewSimpleSet[T comparable]() simpleSet[T] {
+// NewSet generates an empty set.
+func NewSet[T comparable]() set.ISet[T] {
 	return simpleSet[T](make(map[T]interface{}))
 }
 
-func (s simpleSet[T]) Clone() Set[T] {
+func (s simpleSet[T]) Clone() set.ISet[T] {
 	return simpleSet[T](maps.Clone(s))
 }
 
@@ -29,7 +31,7 @@ func (s simpleSet[T]) Add(elem T) {
 	s[elem] = nil
 }
 
-func (s simpleSet[T]) AddSet(other Set[T]) {
+func (s simpleSet[T]) AddSet(other set.ISet[T]) {
 	pG := other.Generator()
 	for elem := range pG {
 		s.Add(elem)
@@ -40,14 +42,14 @@ func (s simpleSet[T]) Remove(elem T) {
 	delete(s, elem)
 }
 
-func (s simpleSet[T]) RemoveSet(other Set[T]) {
+func (s simpleSet[T]) RemoveSet(other set.ISet[T]) {
 	pG := other.Generator()
 	for elem := range pG {
 		s.Remove(elem)
 	}
 }
 
-func (s simpleSet[T]) Retain(other Set[T]) {
+func (s simpleSet[T]) Retain(other set.ISet[T]) {
 	for elem := range maps.Keys(s) {
 		if !other.Contains(elem) {
 			delete(s, elem)
@@ -55,7 +57,7 @@ func (s simpleSet[T]) Retain(other Set[T]) {
 	}
 }
 
-func (s simpleSet[T]) Subeq(other Set[T]) bool {
+func (s simpleSet[T]) Subeq(other set.ISet[T]) bool {
 
 	for elem, _ := range s {
 		if !other.Contains(elem) {

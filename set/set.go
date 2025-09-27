@@ -4,11 +4,11 @@ import (
 	"iter"
 )
 
-// Set is set type.
-type Set[T any] interface {
+// ISet is set type.
+type ISet[T any] interface {
 
 	// Clone produces another set containing the same elements.
-	Clone() Set[T]
+	Clone() ISet[T]
 
 	// Generator produces a generator which enumerates each element.
 	Generator() iter.Seq[T]
@@ -17,22 +17,22 @@ type Set[T any] interface {
 	Add(elem T)
 
 	// Add adds each element of other to the set.
-	AddSet(other Set[T])
+	AddSet(other ISet[T])
 
 	// Remove removes element elem in set if set contains it.
 	Remove(elem T)
 
 	// Remove removes each element contained in other from set.
-	RemoveSet(other Set[T])
+	RemoveSet(other ISet[T])
 
-	// Retain removes each element not contained in other from set.
-	Retain(other Set[T])
+	// Retain removes each element not contained in other set.
+	Retain(other ISet[T])
 
 	// Contains checks whether set contains elem.
 	Contains(elem T) bool
 
 	// Subeq checks whether set is subset or equal to other.
-	Subeq(other Set[T]) bool
+	Subeq(other ISet[T]) bool
 
 	// IsEmpty checks whether set is empty.
 	IsEmpty() bool
