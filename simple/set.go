@@ -68,6 +68,10 @@ func (s simpleSet[T]) Subeq(other set.ISet[T]) bool {
 	return true
 }
 
+func (s simpleSet[T]) Eq(other set.ISet[T]) bool {
+	return s.Subeq(other) && other.Subeq(s)
+}
+
 func (s simpleSet[T]) IsDisjoint(other set.ISet[T]) bool {
 
 	for elem, _ := range s {

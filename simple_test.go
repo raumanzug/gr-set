@@ -81,6 +81,102 @@ func Test_AddCommutativity(t *testing.T) {
 	}
 }
 
+func Test_EqA(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	if !setA.Eq(setA) {
+		t.Fail()
+	}
+}
+
+func Test_EqB(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setA.Add(12)
+	if !setA.Eq(setA) {
+		t.Fail()
+	}
+}
+
+func Test_EqC(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	if !setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqD(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setA.Add(12)
+	setB := setA.Clone()
+	if !setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqE(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(12)
+	setB.Add(12)
+	if !setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqF(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(12)
+	setA.Add(37)
+	setB.Add(37)
+	setB.Add(12)
+	if !setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqG(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(12)
+	setB.Add(12)
+	setA.Add(12)
+	if !setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqH(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setA.Add(12)
+	setB := setA.Clone()
+	setB.Add(12)
+	if !setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqI(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(12)
+	setB.Add(37)
+	if setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
+func Test_EqJ(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(12)
+	setB.Add(37)
+	setB.Add(12)
+	if setA.Eq(setB) {
+		t.Fail()
+	}
+}
+
 func Test_IsDisjointA(t *testing.T) {
 	setA := simple.NewSet[uint]()
 	if !setA.IsDisjoint(setA) {

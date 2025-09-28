@@ -34,6 +34,9 @@ type ISet[T any] interface {
 	// Subeq checks whether set is subset or equal to other.
 	Subeq(other ISet[T]) bool
 
+	// Eq checks whether set equals to other.
+	Eq(other ISet[T]) bool
+
 	// IsDisjoint checks whether other set is disjoint to receiver set.
 	IsDisjoint(other ISet[T]) bool
 
