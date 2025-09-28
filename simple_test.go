@@ -81,6 +81,81 @@ func Test_AddCommutativity(t *testing.T) {
 	}
 }
 
+func Test_IsDisjointA(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	if !setA.IsDisjoint(setA) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointB(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	if !setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointC(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setB.Add(12)
+	if !setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointD(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(37)
+	if !setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointE(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setB := simple.NewSet[uint]()
+	setA.Add(37)
+	setB.Add(12)
+	if !setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointF(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setA.Add(37)
+	setA.Add(12)
+	setB := setA.Clone()
+	if setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointG(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setA.Add(37)
+	setA.Add(12)
+	setB := setA.Clone()
+	setB.Add(5)
+	if setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
+func Test_IsDisjointH(t *testing.T) {
+	setA := simple.NewSet[uint]()
+	setA.Add(37)
+	setA.Add(12)
+	setB := setA.Clone()
+	setA.Add(5)
+	if setA.IsDisjoint(setB) {
+		t.Fail()
+	}
+}
+
 func Test_RemoveItself(t *testing.T) {
 	mySet := simple.NewSet[uint]()
 	mySet.Add(5)
