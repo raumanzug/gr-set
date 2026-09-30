@@ -50,7 +50,7 @@ func (s simpleSet[T]) RemoveSet(other set.ISet[T]) {
 }
 
 func (s simpleSet[T]) Retain(other set.ISet[T]) {
-	for elem := range maps.Keys(s) {
+	for elem := range s {
 		if !other.Contains(elem) {
 			delete(s, elem)
 		}
