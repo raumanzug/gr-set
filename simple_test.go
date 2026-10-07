@@ -295,6 +295,24 @@ func Test_Simple_AddItselfB(t *testing.T) {
 	}
 }
 
+func Test_Simple_Representative(t *testing.T) {
+	mySet := simple.NewSet[uint]()
+	mySet.Add(5)
+	mySet.Add(12)
+	r := mySet.Representative(37)
+	if r != 37 {
+		t.Fail()
+	}
+	r = mySet.Representative(37)
+	if r != 37 {
+		t.Fail()
+	}
+	r = mySet.Representative(12)
+	if r != 12 {
+		t.Fail()
+	}
+}
+
 func Test_Simple_RetainItselfA(t *testing.T) {
 	mySet := simple.NewSet[uint]()
 	mySet.Add(5)

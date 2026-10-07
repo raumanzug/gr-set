@@ -49,6 +49,11 @@ func (s simpleSet[T]) RemoveSet(other set.ISet[T]) {
 	}
 }
 
+func (s simpleSet[T]) Representative(elem T) T {
+	s.Add(elem)
+	return elem
+}
+
 func (s simpleSet[T]) Retain(other set.ISet[T]) {
 	for elem := range s {
 		if !other.Contains(elem) {

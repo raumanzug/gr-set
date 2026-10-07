@@ -8,11 +8,17 @@ import (
 
 func Test_Comparable_VarArgs_A(t *testing.T) {
 	setA := comparable.NewSet[testType_t]()
-	setB := comparable.NewSet[testType_t](5, 12, 5)
-	setC := comparable.NewSet[testType_t](12, 5)
+	setB := comparable.NewSet[testType_t](
+		testType_t{a: 3, b: 2},
+		testType_t{a: 6, b: 6},
+		testType_t{a: 1, b: 4})
+	setC := comparable.NewSet[testType_t](
+		testType_t{a: 6, b: 6},
+		testType_t{a: 3, b: 2},
+	)
 
-	setA.Add(12)
-	setA.Add(5)
+	setA.Add(testType_t{a: 6, b: 6})
+	setA.Add(testType_t{a: 3, b: 2})
 
 	if !setA.Eq(setA) {
 		t.Fail()

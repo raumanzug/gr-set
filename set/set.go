@@ -19,6 +19,16 @@ type ISet[T any] interface {
 	// Add adds each element of other to the set.
 	AddSet(other ISet[T])
 
+	// Add `elem` if set does not contain an equivalent for it.
+	//
+	//
+	// If set does not contain an equivalent this method returns
+	// `elem`.
+	//
+	// If set contains an equivalent this method returns this
+	// equivalent and ignores `elem`.
+	Representative(elem T) T
+
 	// Remove removes element elem in set if set contains it.
 	Remove(elem T)
 

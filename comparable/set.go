@@ -119,6 +119,22 @@ func (pRecv *comparableSet_t[T]) RemoveSet(other set.ISet[T]) {
 	}
 }
 
+func (pRecv *comparableSet_t[T]) Representative(elem T) T {
+	index, isFound := sort.Find(
+		len(pRecv.data),
+		func(index int) int {
+			return elem.CompareTo(pRecv.data[index])
+		},
+	)
+
+	if isFound {
+		return pRecv.data[index]
+	} else {
+		pRecv.Add(elem)
+		return elem
+	}
+}
+
 func (pRecv *comparableSet_t[T]) Retain(other set.ISet[T]) {
 	for _, elem := range pRecv.data {
 		if !other.Contains(elem) {
