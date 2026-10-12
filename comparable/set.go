@@ -8,19 +8,20 @@ import (
 	"github.com/raumanzug/gr-set/set"
 )
 
-type comparableSet_t[T set.IComparable[T]] struct {
+type comparableSet_t[C any, T set.IComparable[C, T]] struct {
+	ctxt C
 	data []T
 }
 
-func (recv comparableSet_t[T]) Len() int {
+func (recv comparableSet_t[C, T]) Len() int {
 	return len(recv.data)
 }
 
-func (recv comparableSet_t[T]) Less(i, j int) bool {
-	return recv.data[i].CompareTo(recv.data[j]) < 0
+func (recv comparableSet_t[C, T]) Less(i, j int) bool {
+	return recv.data[i].CompareTo(recv.ctxt, recv.data[j]) < 0
 }
 
-func (recv comparableSet_t[T]) Swap(i, j int) {
+func (recv comparableSet_t[C, T]) Swap(i, j int) {
 	recv.data[i], recv.data[j] = recv.data[j], recv.data[i]
 }
 
@@ -28,8 +29,12 @@ func (recv comparableSet_t[T]) Swap(i, j int) {
 //
 // elems will be modified (sorted according to the order relation defined
 // by interface set.IComparable).
-func NewSet[T set.IComparable[T]](elems ...T) set.ISet[T] {
-	retval := comparableSet_t[T]{
+func NewSet[C any, T set.IComparable[C, T]](
+	ctxt C,
+	elems ...T,
+) set.ISortedSet[T] {
+	retval := comparableSet_t[C, T]{
+		ctxt: ctxt,
 		data: elems,
 	}
 
@@ -37,41 +42,42 @@ func NewSet[T set.IComparable[T]](elems ...T) set.ISet[T] {
 	retval.data = slices.CompactFunc(
 		elems,
 		func(x T, y T) bool {
-			return x.CompareTo(y) == 0
+			return x.CompareTo(ctxt, y) == 0
 		},
 	)
 
 	return &retval
 }
 
-func (recv comparableSet_t[T]) Clone() set.ISet[T] {
-	return &comparableSet_t[T]{
+func (recv comparableSet_t[C, T]) Clone() set.ISet[T] {
+	return &comparableSet_t[C, T]{
+		ctxt: recv.ctxt,
 		data: slices.Clone(recv.data),
 	}
 }
 
-func (recv comparableSet_t[T]) Generator() iter.Seq[T] {
+func (recv comparableSet_t[C, T]) Generator() iter.Seq[T] {
 	// clone it because generator will be confused if recv.data is exchanged
 	// by Remove and other methods.
 	return slices.Values(slices.Clone(recv.data))
 }
 
-func (recv comparableSet_t[T]) Contains(elem T) bool {
+func (recv comparableSet_t[C, T]) Contains(elem T) bool {
 	_, isFound := sort.Find(
 		len(recv.data),
 		func(index int) int {
-			return elem.CompareTo(recv.data[index])
+			return elem.CompareTo(recv.ctxt, recv.data[index])
 		},
 	)
 
 	return isFound
 }
 
-func (pRecv *comparableSet_t[T]) Add(elem T) {
+func (pRecv *comparableSet_t[C, T]) Add(elem T) {
 	index, isFound := sort.Find(
 		len(pRecv.data),
 		func(index int) int {
-			return elem.CompareTo(pRecv.data[index])
+			return elem.CompareTo(pRecv.ctxt, pRecv.data[index])
 		},
 	)
 
@@ -90,18 +96,18 @@ func (pRecv *comparableSet_t[T]) Add(elem T) {
 	}
 }
 
-func (pRecv *comparableSet_t[T]) AddSet(other set.ISet[T]) {
+func (pRecv *comparableSet_t[C, T]) AddSet(other set.ISet[T]) {
 	pG := other.Generator()
 	for elem := range pG {
 		pRecv.Add(elem)
 	}
 }
 
-func (pRecv *comparableSet_t[T]) Remove(elem T) {
+func (pRecv *comparableSet_t[C, T]) Remove(elem T) {
 	index, isFound := sort.Find(
 		len(pRecv.data),
 		func(index int) int {
-			return elem.CompareTo(pRecv.data[index])
+			return elem.CompareTo(pRecv.ctxt, pRecv.data[index])
 		},
 	)
 
@@ -112,18 +118,18 @@ func (pRecv *comparableSet_t[T]) Remove(elem T) {
 	pRecv.data = slices.Delete(pRecv.data, index, index+1)
 }
 
-func (pRecv *comparableSet_t[T]) RemoveSet(other set.ISet[T]) {
+func (pRecv *comparableSet_t[C, T]) RemoveSet(other set.ISet[T]) {
 	pG := other.Generator()
 	for elem := range pG {
 		pRecv.Remove(elem)
 	}
 }
 
-func (pRecv *comparableSet_t[T]) Representative(elem T) T {
+func (pRecv *comparableSet_t[C, T]) Representative(elem T) T {
 	index, isFound := sort.Find(
 		len(pRecv.data),
 		func(index int) int {
-			return elem.CompareTo(pRecv.data[index])
+			return elem.CompareTo(pRecv.ctxt, pRecv.data[index])
 		},
 	)
 
@@ -135,7 +141,7 @@ func (pRecv *comparableSet_t[T]) Representative(elem T) T {
 	}
 }
 
-func (pRecv *comparableSet_t[T]) Retain(other set.ISet[T]) {
+func (pRecv *comparableSet_t[C, T]) Retain(other set.ISet[T]) {
 	for _, elem := range pRecv.data {
 		if !other.Contains(elem) {
 			pRecv.Remove(elem)
@@ -143,7 +149,17 @@ func (pRecv *comparableSet_t[T]) Retain(other set.ISet[T]) {
 	}
 }
 
-func (recv comparableSet_t[T]) Subeq(other set.ISet[T]) bool {
+func (pRecv *comparableSet_t[C, T]) Sort() {
+	sort.Sort(pRecv)
+	pRecv.data = slices.CompactFunc(
+		pRecv.data,
+		func(x T, y T) bool {
+			return x.CompareTo(pRecv.ctxt, y) == 0
+		},
+	)
+}
+
+func (recv comparableSet_t[C, T]) Subeq(other set.ISet[T]) bool {
 
 	for _, elem := range recv.data {
 		if !other.Contains(elem) {
@@ -154,11 +170,11 @@ func (recv comparableSet_t[T]) Subeq(other set.ISet[T]) bool {
 	return true
 }
 
-func (pRecv *comparableSet_t[T]) Eq(other set.ISet[T]) bool {
+func (pRecv *comparableSet_t[C, T]) Eq(other set.ISet[T]) bool {
 	return pRecv.Subeq(other) && other.Subeq(pRecv)
 }
 
-func (recv comparableSet_t[T]) IsDisjoint(other set.ISet[T]) bool {
+func (recv comparableSet_t[C, T]) IsDisjoint(other set.ISet[T]) bool {
 
 	for _, elem := range recv.data {
 		if other.Contains(elem) {
@@ -169,10 +185,10 @@ func (recv comparableSet_t[T]) IsDisjoint(other set.ISet[T]) bool {
 	return true
 }
 
-func (recv comparableSet_t[T]) IsEmpty() bool {
+func (recv comparableSet_t[C, T]) IsEmpty() bool {
 	return len(recv.data) == 0
 }
 
-func (recv comparableSet_t[T]) Card() uint {
+func (recv comparableSet_t[C, T]) Card() uint {
 	return uint(len(recv.data))
 }

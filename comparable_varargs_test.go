@@ -7,18 +7,20 @@ import (
 )
 
 func Test_Comparable_VarArgs_A(t *testing.T) {
-	setA := comparable.NewSet[testType_t]()
-	setB := comparable.NewSet[testType_t](
-		testType_t{a: 3, b: 2},
-		testType_t{a: 6, b: 6},
-		testType_t{a: 1, b: 4})
-	setC := comparable.NewSet[testType_t](
-		testType_t{a: 6, b: 6},
-		testType_t{a: 3, b: 2},
+	setA := comparable.NewSet[testContextType_t, testType_t](testContext)
+	setB := comparable.NewSet[testContextType_t, testType_t](
+		testContext,
+		testType_t{a: "v", b: "u"},
+		testType_t{a: "r", b: "r"},
+		testType_t{a: "a", b: "b"})
+	setC := comparable.NewSet[testContextType_t, testType_t](
+		testContext,
+		testType_t{a: "r", b: "r"},
+		testType_t{a: "v", b: "u"},
 	)
 
-	setA.Add(testType_t{a: 6, b: 6})
-	setA.Add(testType_t{a: 3, b: 2})
+	setA.Add(testType_t{a: "r", b: "r"})
+	setA.Add(testType_t{a: "v", b: "u"})
 
 	if !setA.Eq(setA) {
 		t.Fail()

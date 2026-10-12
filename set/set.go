@@ -57,3 +57,15 @@ type ISet[T any] interface {
 	// the set contains.
 	Card() uint
 }
+
+// ISortedSet is the interface for implementations of the ISet interface
+// that require a strict ordering of their elements.
+type ISortedSet[T any] interface {
+	ISet[T]
+
+	// Sort is necessary after modifying elements managed by
+	// comparableSet_t structures.  Otherwise the slice inside this
+	// structure turns to be not ordered according to ordering defined by
+	// IComparable.
+	Sort()
+}
