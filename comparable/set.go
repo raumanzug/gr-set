@@ -13,6 +13,11 @@ type comparableSet_t[C any, T set.IComparable[C, T]] struct {
 	data []T
 }
 
+type comparableSetMap_t[C any, S set.IComparable[C, T], T any] struct {
+	ctxt C
+	data []T
+}
+
 func (recv comparableSet_t[C, T]) Len() int {
 	return len(recv.data)
 }
@@ -49,30 +54,6 @@ func NewSet[C any, T set.IComparable[C, T]](
 	return &retval
 }
 
-func (recv comparableSet_t[C, T]) Clone() set.ISet[T] {
-	return &comparableSet_t[C, T]{
-		ctxt: recv.ctxt,
-		data: slices.Clone(recv.data),
-	}
-}
-
-func (recv comparableSet_t[C, T]) Generator() iter.Seq[T] {
-	// clone it because generator will be confused if recv.data is exchanged
-	// by Remove and other methods.
-	return slices.Values(slices.Clone(recv.data))
-}
-
-func (recv comparableSet_t[C, T]) Contains(elem T) bool {
-	_, isFound := sort.Find(
-		len(recv.data),
-		func(index int) int {
-			return elem.CompareTo(recv.ctxt, recv.data[index])
-		},
-	)
-
-	return isFound
-}
-
 func (pRecv *comparableSet_t[C, T]) Add(elem T) {
 	index, isFound := sort.Find(
 		len(pRecv.data),
@@ -103,19 +84,85 @@ func (pRecv *comparableSet_t[C, T]) AddSet(other set.ISet[T]) {
 	}
 }
 
-func (pRecv *comparableSet_t[C, T]) Remove(elem T) {
-	index, isFound := sort.Find(
-		len(pRecv.data),
-		func(index int) int {
-			return elem.CompareTo(pRecv.ctxt, pRecv.data[index])
+func (recv comparableSet_t[C, T]) Card() uint {
+	return uint(len(recv.data))
+}
+
+func (recv comparableSet_t[C, T]) Clone() set.ISet[T] {
+	return &comparableSet_t[C, T]{
+		ctxt: recv.ctxt,
+		data: slices.Clone(recv.data),
+	}
+}
+
+func (recv comparableSet_t[C, T]) Contains(elem T) bool {
+	setMap := recv.NewSetMap[T]()
+	_, _, wasFound := setMap.Get(elem)
+
+	return wasFound
+}
+
+func (pRecv *comparableSet_t[C, T]) Eq(other set.ISet[T]) bool {
+	return pRecv.Subeq(other) && other.Subeq(pRecv)
+}
+
+func (recv comparableSet_t[C, T]) Generator() iter.Seq[T] {
+	// clone it because generator will be confused if recv.data is exchanged
+	// by Remove and other methods.
+	return slices.Values(slices.Clone(recv.data))
+}
+
+func (recv comparableSetMap_t[C, S, T]) Get(id S) (
+	index uint,
+	elem T,
+	wasFound bool,
+) {
+	var i int
+	i, wasFound = sort.Find(
+		len(recv.data),
+		func(idx int) int {
+			return id.CompareTo(recv.ctxt, recv.data[idx])
 		},
 	)
+	if wasFound {
+		index = uint(i)
+		elem = recv.data[index]
+	}
 
-	if !isFound {
+	return
+}
+
+func (recv comparableSet_t[C, T]) IsDisjoint(other set.ISet[T]) bool {
+	for _, elem := range recv.data {
+		if other.Contains(elem) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (recv comparableSet_t[C, T]) IsEmpty() bool {
+	return len(recv.data) == 0
+}
+
+func (pRecv *comparableSet_t[C, T]) NewSetMap[S set.IComparable[C, T]]() set.ISetMap[uint, S, T] {
+	return (*comparableSetMap_t[C, S, T])(pRecv)
+}
+
+func (pRecv *comparableSetMap_t[C, S, T]) Remove(index uint) {
+	pRecv.data = slices.Delete(pRecv.data, int(index), int(index+1))
+}
+
+func (pRecv *comparableSet_t[C, T]) Remove(elem T) {
+	setMap := pRecv.NewSetMap[T]()
+	index, _, wasFound := setMap.Get(elem)
+
+	if !wasFound {
 		return
 	}
 
-	pRecv.data = slices.Delete(pRecv.data, index, index+1)
+	setMap.Remove(index)
 }
 
 func (pRecv *comparableSet_t[C, T]) RemoveSet(other set.ISet[T]) {
@@ -160,7 +207,6 @@ func (pRecv *comparableSet_t[C, T]) Sort() {
 }
 
 func (recv comparableSet_t[C, T]) Subeq(other set.ISet[T]) bool {
-
 	for _, elem := range recv.data {
 		if !other.Contains(elem) {
 			return false
@@ -168,27 +214,4 @@ func (recv comparableSet_t[C, T]) Subeq(other set.ISet[T]) bool {
 	}
 
 	return true
-}
-
-func (pRecv *comparableSet_t[C, T]) Eq(other set.ISet[T]) bool {
-	return pRecv.Subeq(other) && other.Subeq(pRecv)
-}
-
-func (recv comparableSet_t[C, T]) IsDisjoint(other set.ISet[T]) bool {
-
-	for _, elem := range recv.data {
-		if other.Contains(elem) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (recv comparableSet_t[C, T]) IsEmpty() bool {
-	return len(recv.data) == 0
-}
-
-func (recv comparableSet_t[C, T]) Card() uint {
-	return uint(len(recv.data))
 }

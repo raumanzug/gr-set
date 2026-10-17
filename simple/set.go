@@ -14,19 +14,6 @@ func NewSet[T comparable]() set.ISet[T] {
 	return simpleSet[T](make(map[T]interface{}))
 }
 
-func (s simpleSet[T]) Clone() set.ISet[T] {
-	return simpleSet[T](maps.Clone(s))
-}
-
-func (s simpleSet[T]) Generator() iter.Seq[T] {
-	return maps.Keys(s)
-}
-
-func (s simpleSet[T]) Contains(elem T) bool {
-	_, retval := s[elem]
-	return retval
-}
-
 func (s simpleSet[T]) Add(elem T) {
 	s[elem] = nil
 }
@@ -36,6 +23,41 @@ func (s simpleSet[T]) AddSet(other set.ISet[T]) {
 	for elem := range pG {
 		s.Add(elem)
 	}
+}
+
+func (s simpleSet[T]) Card() uint {
+	return uint(len(s))
+}
+
+func (s simpleSet[T]) Clone() set.ISet[T] {
+	return simpleSet[T](maps.Clone(s))
+}
+
+func (s simpleSet[T]) Contains(elem T) bool {
+	_, retval := s[elem]
+	return retval
+}
+
+func (s simpleSet[T]) Eq(other set.ISet[T]) bool {
+	return s.Subeq(other) && other.Subeq(s)
+}
+
+func (s simpleSet[T]) Generator() iter.Seq[T] {
+	return maps.Keys(s)
+}
+
+func (s simpleSet[T]) IsDisjoint(other set.ISet[T]) bool {
+	for elem, _ := range s {
+		if other.Contains(elem) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (s simpleSet[T]) IsEmpty() bool {
+	return len(s) == 0
 }
 
 func (s simpleSet[T]) Remove(elem T) {
@@ -63,7 +85,6 @@ func (s simpleSet[T]) Retain(other set.ISet[T]) {
 }
 
 func (s simpleSet[T]) Subeq(other set.ISet[T]) bool {
-
 	for elem, _ := range s {
 		if !other.Contains(elem) {
 			return false
@@ -71,27 +92,4 @@ func (s simpleSet[T]) Subeq(other set.ISet[T]) bool {
 	}
 
 	return true
-}
-
-func (s simpleSet[T]) Eq(other set.ISet[T]) bool {
-	return s.Subeq(other) && other.Subeq(s)
-}
-
-func (s simpleSet[T]) IsDisjoint(other set.ISet[T]) bool {
-
-	for elem, _ := range s {
-		if other.Contains(elem) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (s simpleSet[T]) IsEmpty() bool {
-	return len(s) == 0
-}
-
-func (s simpleSet[T]) Card() uint {
-	return uint(len(s))
 }
